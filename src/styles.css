@@ -1,0 +1,183 @@
+:root {
+  --bg: #2a1f4e;
+  --bg-bar: #241a45;
+  --surface: #372a66;
+  --surface-2: #45357d;
+  --line: #4a3b80;
+  --line-strong: #5a4a90;
+  --text: #f3ede1;
+  --text-2: #e4ddef;
+  --muted: #c4bbd8;
+  --gold: #d4af6a;
+  --gold-soft: #e9d3a1;
+  --on-gold: #241a45;
+  --teal: #8fd3cb;
+  --teal-bg: #12302f;
+  --rose: #f0b5c2;
+  --rose-bg: #3a1e2b;
+  --radius: 18px;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: Manrope, system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+/* Arkhé has a single night-violet theme; the same tokens apply in dark mode. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { --bg: #2a1f4e; }
+}
+:root[data-theme='dark'] { --bg: #2a1f4e; }
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--gold-soft); }
+a:hover { color: #fff; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+img { max-width: 100%; }
+
+.app {
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  position: relative;
+}
+@media (min-width: 520px) {
+  .app { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+}
+.main {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+  padding-block: 18px 28px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Bottom navigation */
+.nav {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  background: var(--bg-bar); border-top: 1px solid var(--line);
+  padding: 6px 4px calc(10px + env(safe-area-inset-bottom));
+}
+.nav a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 52px; text-decoration: none; font-size: 11px; font-weight: 700; color: var(--muted);
+}
+.nav a[aria-current='page'] { color: var(--gold); font-weight: 800; }
+
+/* Typography */
+.display { font-family: var(--font-display); font-weight: 700; line-height: 1.1; margin: 0; font-variant-numeric: lining-nums; }
+.h1 { font-size: 32px; }
+.h2 { font-size: 23px; }
+.h3 { font-size: 19px; }
+.eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; color: var(--gold); }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.p { margin: 0; color: var(--text-2); }
+
+.wordmark { display: flex; flex-direction: column; line-height: 1; }
+.wordmark b { font-family: var(--font-display); font-size: 30px; letter-spacing: 0.18em; color: var(--gold); }
+.wordmark i { font-family: var(--font-display); font-size: 14px; color: var(--muted); letter-spacing: 0.04em; }
+
+/* Surfaces */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.card.gold { border-color: var(--gold); }
+.row { display: flex; align-items: center; gap: 12px; }
+.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px; }
+.link-card { text-decoration: none; color: var(--text); }
+.link-card:hover { color: var(--text); border-color: var(--line-strong); }
+
+/* Buttons */
+.btn {
+  min-height: 48px; padding: 0 22px; border-radius: 99px; border: 1px solid var(--gold);
+  background: var(--gold); color: var(--on-gold); font-weight: 800; font-size: 15px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+}
+.btn:hover { color: var(--on-gold); background: var(--gold-soft); }
+.btn.ghost { background: transparent; color: var(--gold); }
+.btn.ghost:hover { background: rgba(212, 175, 106, 0.12); color: var(--gold-soft); }
+.btn[disabled] { opacity: 0.5; cursor: default; }
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong);
+  background: transparent; display: inline-flex; align-items: center; justify-content: center; color: var(--gold-soft);
+}
+.chip {
+  min-height: 40px; padding: 0 16px; border-radius: 99px; border: 1px solid var(--line-strong);
+  background: transparent; color: var(--text-2); font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.chip[aria-pressed='true'], .chip[aria-selected='true'] { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+
+.option {
+  min-height: 48px; width: 100%; text-align: left; padding: 10px 16px; border-radius: 12px;
+  border: 1px solid var(--line-strong); background: transparent; font-weight: 700; color: var(--text);
+}
+.option.right { background: var(--teal-bg); border-color: var(--teal); }
+.option.wrong { background: var(--rose-bg); border-color: var(--rose); }
+.feedback { border-left: 2px solid var(--teal); padding: 4px 0 4px 12px; color: var(--text-2); margin: 0; }
+.feedback.bad { border-color: var(--rose); }
+
+/* Tags that mark where a claim comes from */
+.tag { align-self: flex-start; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 99px; }
+.tag.waite { background: var(--surface-2); color: var(--gold-soft); }
+.tag.school { background: var(--teal-bg); color: var(--teal); }
+.tag.history { background: var(--rose-bg); color: var(--rose); }
+
+/* Progress bar */
+.bar { height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--gold); border-radius: 99px; }
+
+/* Card images (illustrations are never altered, only framed) */
+.tarot { display: block; width: 100%; aspect-ratio: 300 / 520; object-fit: contain; border-radius: 5px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45); background: var(--surface); }
+
+/* Tabs */
+.tabs { display: flex; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--line); }
+.tabs button {
+  flex-shrink: 0; min-height: 44px; padding: 0 12px; border: 0; background: none;
+  color: var(--muted); font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent;
+}
+.tabs button[aria-selected='true'] { color: var(--gold); font-weight: 800; border-bottom-color: var(--gold); }
+
+.search {
+  display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: 14px; padding: 0 14px; min-height: 48px;
+}
+.search input { border: 0; outline: none; background: transparent; flex: 1; min-width: 0; height: 44px; font-size: 15px; }
+.search input::placeholder { color: var(--muted); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.toast {
+  position: absolute; left: 16px; right: 16px; bottom: 84px; z-index: 10;
+  background: var(--gold); color: var(--on-gold); font-weight: 800; border-radius: 14px; padding: 12px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); text-align: center;
+}
+
+/* Memory game */
+.memory { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.memory button {
+  aspect-ratio: 3 / 4; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center; padding: 6px; overflow: hidden;
+  font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--text); text-align: center;
+}
+.memory button.open { background: var(--surface); border-color: var(--gold); }
+.memory button.matched { border-color: var(--teal); background: var(--teal-bg); cursor: default; }
+.memory img { height: 100%; width: auto; object-fit: contain; border-radius: 4px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .fade { animation: fade 0.25s ease-out; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
