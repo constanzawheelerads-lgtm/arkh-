@@ -4,19 +4,21 @@ import { useEffect, useState } from 'react';
 // Flat names work on any static host, inside Capacitor (Android/iOS) and in
 // embedded previews that only pass simple #names through.
 
-export type GameId = 'guess' | 'truefalse' | 'memory';
+export type GameId = 'guess' | 'truefalse' | 'memory' | 'combination';
 
 export type Route =
   | { name: 'home' }
   | { name: 'learn' }
   | { name: 'lesson'; id: string }
   | { name: 'library' }
-  | { name: 'card'; n: number }
+  | { name: 'card'; id: string }
   | { name: 'games' }
   | { name: 'game'; id: GameId }
-  | { name: 'profile' };
+  | { name: 'profile' }
+  | { name: 'sources' };
 
-const GAMES: GameId[] = ['guess', 'truefalse', 'memory'];
+const GAMES: GameId[] = ['guess', 'truefalse', 'memory', 'combination'];
+const CARD_ID = /^(m(0\d|1\d|2[01])|[wcsp](0[1-9]|1[0-4]))$/;
 
 export function parseHash(hash: string): Route {
   const h = hash.replace(/^#\/?/, '');
@@ -24,8 +26,8 @@ export function parseHash(hash: string): Route {
   if (h.startsWith('learn-')) return { name: 'lesson', id: h.slice(6) };
   if (h === 'library') return { name: 'library' };
   if (h.startsWith('card-')) {
-    const n = Number(h.slice(5));
-    return Number.isInteger(n) && n >= 0 && n <= 21 ? { name: 'card', n } : { name: 'library' };
+    const id = h.slice(5);
+    return CARD_ID.test(id) ? { name: 'card', id } : { name: 'library' };
   }
   if (h === 'games') return { name: 'games' };
   if (h.startsWith('game-')) {
@@ -33,6 +35,7 @@ export function parseHash(hash: string): Route {
     return GAMES.includes(id) ? { name: 'game', id } : { name: 'games' };
   }
   if (h === 'profile') return { name: 'profile' };
+  if (h === 'sources') return { name: 'sources' };
   return { name: 'home' };
 }
 
@@ -41,10 +44,11 @@ export const href = {
   learn: () => '#learn',
   lesson: (id: string) => `#learn-${id}`,
   library: () => '#library',
-  card: (n: number) => `#card-${n}`,
+  card: (id: string) => `#card-${id}`,
   games: () => '#games',
   game: (id: string) => `#game-${id}`,
   profile: () => '#profile',
+  sources: () => '#sources',
 };
 
 export function useRoute(): Route {

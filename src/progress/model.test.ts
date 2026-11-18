@@ -18,11 +18,11 @@ describe('levels', () => {
 
 describe('applyEvent', () => {
   it('awards XP only for the first view of a card', () => {
-    const a = applyEvent(initialProgress, { type: 'viewCard', card: 1 }, DAY, 4);
+    const a = applyEvent(initialProgress, { type: 'viewCard', card: 'm01' }, DAY, 4);
     expect(a.xpGained).toBe(XP.firstCardView);
-    const b = applyEvent(a.state, { type: 'viewCard', card: 1 }, DAY, 4);
+    const b = applyEvent(a.state, { type: 'viewCard', card: 'm01' }, DAY, 4);
     expect(b.xpGained).toBe(0);
-    expect(b.state.cardsViewed).toEqual([1]);
+    expect(b.state.cardsViewed).toEqual(['m01']);
   });
 
   it('completes a lesson once and grants the first-lesson badge', () => {
@@ -45,16 +45,16 @@ describe('applyEvent', () => {
   });
 
   it('tracks the daily streak', () => {
-    let s = applyEvent(initialProgress, { type: 'viewCard', card: 0 }, '2026-11-16', 4).state;
+    let s = applyEvent(initialProgress, { type: 'viewCard', card: 'm00' }, '2026-11-16', 4).state;
     expect(s.streak.count).toBe(1);
-    s = applyEvent(s, { type: 'viewCard', card: 1 }, '2026-11-16', 4).state;
+    s = applyEvent(s, { type: 'viewCard', card: 'm01' }, '2026-11-16', 4).state;
     expect(s.streak.count).toBe(1);
-    s = applyEvent(s, { type: 'viewCard', card: 2 }, '2026-11-17', 4).state;
+    s = applyEvent(s, { type: 'viewCard', card: 'm02' }, '2026-11-17', 4).state;
     expect(s.streak.count).toBe(2);
-    const r = applyEvent(s, { type: 'viewCard', card: 3 }, '2026-11-18', 4);
+    const r = applyEvent(s, { type: 'viewCard', card: 'm03' }, '2026-11-18', 4);
     expect(r.state.streak.count).toBe(3);
     expect(r.newBadges).toContain('streak-3');
-    s = applyEvent(r.state, { type: 'viewCard', card: 4 }, '2026-11-21', 4).state;
+    s = applyEvent(r.state, { type: 'viewCard', card: 'm04' }, '2026-11-21', 4).state;
     expect(s.streak.count).toBe(1);
   });
 
@@ -65,12 +65,34 @@ describe('applyEvent', () => {
   });
 });
 
+describe('phase 3 badges', () => {
+  it('awards four-suits and first-combination', () => {
+    let s = initialProgress;
+    for (const id of ['w01', 'c02', 's03']) s = applyEvent(s, { type: 'viewCard', card: id }, DAY, 4).state;
+    const r = applyEvent(s, { type: 'viewCard', card: 'p04' }, DAY, 4);
+    expect(r.newBadges).toContain('four-suits');
+    const c = applyEvent(r.state, { type: 'practiceCombination' }, DAY, 4);
+    expect(c.xpGained).toBe(XP.combination);
+    expect(c.newBadges).toContain('first-combination');
+  });
+});
+
 describe('migrate', () => {
   it('rejects garbage and keeps valid data', () => {
     expect(migrate(null)).toEqual(initialProgress);
     expect(migrate('nope')).toEqual(initialProgress);
     expect(migrate({ version: 99 })).toEqual(initialProgress);
-    const valid = { ...initialProgress, xp: 42, cardsViewed: [1, 2] };
+    const valid = { ...initialProgress, xp: 42, cardsViewed: ['m01', 'w03'] };
     expect(migrate(valid)).toEqual(valid);
+  });
+
+  it('upgrades version 1 progress (numeric major ids)', () => {
+    const v1 = { version: 1, xp: 60, cardsViewed: [1, 12], lessonsDone: ['structure'], gamesPlayed: 1, perfectGames: 0, badges: ['first-lesson'], streak: { count: 2, lastDay: '2026-11-17' } };
+    const m = migrate(v1);
+    expect(m.version).toBe(2);
+    expect(m.cardsViewed).toEqual(['m01', 'm12']);
+    expect(m.combinations).toBe(0);
+    expect(m.xp).toBe(60);
+    expect(m.streak.count).toBe(2);
   });
 });

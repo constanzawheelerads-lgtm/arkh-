@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getLesson, LESSONS } from '../content/lessons';
-import { cardImage, getMajor } from '../content/majors';
+import { cardImage, getCard, majorId } from '../content/cards';
 import { WORLDS } from '../content/worlds';
 import { IconBack, IconCheck } from '../components/Icons';
 import { QuestionBlock } from '../components/Question';
@@ -23,7 +23,7 @@ export function LessonList() {
       {worlds.map((w) => (
         <section key={w} className="stack" aria-label={l(WORLDS[w])}>
           <div className="row">
-            <img src={cardImage(w)} alt="" style={{ width: 34, borderRadius: 3 }} />
+            <img src={cardImage(majorId(w))} alt="" style={{ width: 34, borderRadius: 3 }} />
             <h2 className="display h2" style={{ fontSize: 21 }}>{l(WORLDS[w])}</h2>
           </div>
           {LESSONS.filter((x) => x.world === w).map((lesson) => {
@@ -44,6 +44,7 @@ export function LessonList() {
           })}
         </section>
       ))}
+      <a href={href.sources()} className="btn ghost">{t('learn.sourcesLink')}</a>
     </>
   );
 }
@@ -71,7 +72,7 @@ export function LessonView({ id }: { id: string }) {
   const onQuiz = page === lesson.pages.length;
   const wasDone = progress.lessonsDone.includes(lesson.id);
   const current = lesson.pages[page];
-  const card = current?.card !== undefined ? getMajor(current.card) : undefined;
+  const card = current?.card !== undefined ? getCard(current.card) : undefined;
 
   const finish = () => {
     setGained(record({ type: 'completeLesson', lesson: lesson.id }));
@@ -106,8 +107,8 @@ export function LessonView({ id }: { id: string }) {
       ) : (
         <section className="stack fade" key={page}>
           {card && (
-            <a href={href.card(card.n)} style={{ alignSelf: 'center', width: 150 }}>
-              <img className="tarot" src={cardImage(card.n)} alt={l(card.name)} />
+            <a href={href.card(card.id)} style={{ alignSelf: 'center', width: 150 }}>
+              <img className="tarot" src={cardImage(card.id)} alt={l(card.name)} />
             </a>
           )}
           <p className="p" style={{ fontSize: 17, lineHeight: 1.6 }}>{l(current.text)}</p>

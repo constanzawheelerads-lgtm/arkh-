@@ -82,6 +82,13 @@ export const MAJORS: MajorArcanum[] = [
     waite: { es: 'Estabilidad, poder, protección, realización; ayuda, razón, convicción; autoridad y voluntad.', en: 'Stability, power, protection, realization; aid, reason, conviction; authority and will.' },
     waiteReversed: { es: 'Benevolencia, compasión, crédito; obstrucción, inmadurez.', en: 'Benevolence, compassion, credit; obstruction, immaturity.' },
     goldenDawn: { attribution: { es: 'Aries', en: 'Aries' }, hebrewLetter: 'Heh' },
+    otherSchools: [{
+      school: 'Crowley, The Book of Thoth (1944)',
+      text: {
+        es: 'Crowley intercambia las letras de El Emperador y La Estrella: asigna Tzaddi al Emperador y Heh a la Estrella, manteniendo Aries para el Emperador.',
+        en: 'Crowley swaps the letters of The Emperor and The Star: he gives Tzaddi to the Emperor and Heh to the Star, keeping Aries for the Emperor.',
+      },
+    }],
   },
   {
     n: 5, roman: 'V',
@@ -262,6 +269,13 @@ export const MAJORS: MajorArcanum[] = [
     waite: { es: 'Pérdida, robo, privación, abandono; según otra lectura, esperanza y buenas perspectivas.', en: 'Loss, theft, privation, abandonment; another reading says hope and bright prospects.' },
     waiteReversed: { es: 'Arrogancia, altivez, impotencia.', en: 'Arrogance, haughtiness, impotence.' },
     goldenDawn: { attribution: { es: 'Acuario', en: 'Aquarius' }, hebrewLetter: 'Tzaddi' },
+    otherSchools: [{
+      school: 'Crowley, The Book of Thoth (1944)',
+      text: {
+        es: 'Crowley asigna a La Estrella la letra Heh (en lugar de Tzaddi), manteniendo Acuario.',
+        en: 'Crowley gives The Star the letter Heh (instead of Tzaddi), keeping Aquarius.',
+      },
+    }],
   },
   {
     n: 18, roman: 'XVIII',
@@ -317,11 +331,3 @@ export const MAJORS: MajorArcanum[] = [
   },
 ];
 
-export function cardImage(n: number, large = false): string {
-  const id = `m${String(n).padStart(2, '0')}`;
-  return `${import.meta.env.BASE_URL}cards/${id}${large ? '_lg' : ''}.jpg`;
-}
-
-export function getMajor(n: number): MajorArcanum | undefined {
-  return MAJORS.find((m) => m.n === n);
-}

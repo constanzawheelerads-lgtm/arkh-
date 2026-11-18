@@ -1,5 +1,5 @@
 import { LESSONS } from '../content/lessons';
-import { cardImage, MAJORS } from '../content/majors';
+import { CARDS, cardImage } from '../content/cards';
 import { WORLDS } from '../content/worlds';
 import { IconNext, IconProfile } from '../components/Icons';
 import { MysteriumSays } from '../components/Mysterium';
@@ -13,7 +13,7 @@ function cardOfTheDay(): number {
   const key = dayKey();
   let h = 0;
   for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return h % MAJORS.length;
+  return h % CARDS.length;
 }
 
 export function Home() {
@@ -23,7 +23,7 @@ export function Home() {
   const from = xpForLevel(level);
   const to = xpForLevel(level + 1);
   const pct = Math.round(((progress.xp - from) / (to - from)) * 100);
-  const daily = MAJORS[cardOfTheDay()];
+  const daily = CARDS[cardOfTheDay()];
   const nextLesson = LESSONS.find((x) => !progress.lessonsDone.includes(x.id));
 
   return (
@@ -53,11 +53,11 @@ export function Home() {
 
       <MysteriumSays>{t('home.cardOfDayMsg', { card: l(daily.name) })}</MysteriumSays>
 
-      <a href={href.card(daily.n)} className="card gold link-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-        <img src={cardImage(daily.n)} alt={l(daily.name)} style={{ width: 62, borderRadius: 4, flexShrink: 0 }} />
+      <a href={href.card(daily.id)} className="card gold link-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        <img src={cardImage(daily.id)} alt={l(daily.name)} style={{ width: 62, borderRadius: 4, flexShrink: 0 }} />
         <div className="stack" style={{ gap: 4, flex: 1 }}>
           <span className="eyebrow">{t('home.cardOfDay')}</span>
-          <span className="display h3" style={{ fontSize: 22 }}>{daily.roman} · {l(daily.name)}</span>
+          <span className="display h3" style={{ fontSize: 22 }}>{daily.arcana === 'major' ? `${daily.label} · ` : ''}{l(daily.name)}</span>
         </div>
         <IconNext style={{ color: 'var(--gold)' }} />
       </a>

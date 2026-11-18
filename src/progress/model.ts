@@ -10,36 +10,42 @@ export const XP = {
   gameCorrect: 5,
   perfectBonus: 15,
   memoryComplete: 30,
+  combination: 20,
 } as const;
 
 export const TOTAL_MAJORS = 22;
+export const TOTAL_CARDS = 78;
 
 export interface ProgressState {
-  version: 1;
+  version: 2;
   xp: number;
-  cardsViewed: number[];
+  /** Card ids (m00–m21, w01–p14). */
+  cardsViewed: string[];
   lessonsDone: string[];
   gamesPlayed: number;
   perfectGames: number;
+  combinations: number;
   badges: string[];
   streak: { count: number; lastDay: string | null };
 }
 
 export const initialProgress: ProgressState = {
-  version: 1,
+  version: 2,
   xp: 0,
   cardsViewed: [],
   lessonsDone: [],
   gamesPlayed: 0,
   perfectGames: 0,
+  combinations: 0,
   badges: [],
   streak: { count: 0, lastDay: null },
 };
 
 export type ProgressEvent =
-  | { type: 'viewCard'; card: number }
+  | { type: 'viewCard'; card: string }
   | { type: 'completeLesson'; lesson: string }
-  | { type: 'finishGame'; correct: number; total: number; bonusXp?: number; perfect?: boolean };
+  | { type: 'finishGame'; correct: number; total: number; bonusXp?: number; perfect?: boolean }
+  | { type: 'practiceCombination' };
 
 export interface BadgeDef {
   id: string;
@@ -47,13 +53,19 @@ export interface BadgeDef {
   earned: (s: ProgressState, totalLessons: number) => boolean;
 }
 
+const majorsViewed = (s: ProgressState) => s.cardsViewed.filter((id) => id.startsWith('m')).length;
+const suitsSeen = (s: ProgressState) => new Set(s.cardsViewed.filter((id) => !id.startsWith('m')).map((id) => id[0])).size;
+
 export const BADGES: BadgeDef[] = [
   { id: 'first-lesson', name: { es: 'Primera lección', en: 'First lesson' }, earned: (s) => s.lessonsDone.length >= 1 },
   { id: 'all-lessons', name: { es: 'Discípulo', en: 'Disciple' }, earned: (s, n) => n > 0 && s.lessonsDone.length >= n },
   { id: 'ten-cards', name: { es: 'Ojo atento', en: 'Keen eye' }, earned: (s) => s.cardsViewed.length >= 10 },
-  { id: 'all-majors', name: { es: 'Los 22 arcanos', en: 'All 22 arcana' }, earned: (s) => s.cardsViewed.length >= TOTAL_MAJORS },
+  { id: 'all-majors', name: { es: 'Los 22 arcanos', en: 'All 22 arcana' }, earned: (s) => majorsViewed(s) >= TOTAL_MAJORS },
+  { id: 'four-suits', name: { es: 'Los cuatro palos', en: 'The four suits' }, earned: (s) => suitsSeen(s) >= 4 },
+  { id: 'all-cards', name: { es: 'El mazo completo', en: 'The whole deck' }, earned: (s) => s.cardsViewed.length >= TOTAL_CARDS },
   { id: 'first-game', name: { es: 'Primer juego', en: 'First game' }, earned: (s) => s.gamesPlayed >= 1 },
   { id: 'perfect-game', name: { es: 'Sin errores', en: 'Flawless' }, earned: (s) => s.perfectGames >= 1 },
+  { id: 'first-combination', name: { es: 'Primera combinación', en: 'First combination' }, earned: (s) => s.combinations >= 1 },
   { id: 'streak-3', name: { es: 'Constancia', en: 'Perseverance' }, earned: (s) => s.streak.count >= 3 },
 ];
 
@@ -125,6 +137,10 @@ export function applyEvent(
       if (perfect) next.perfectGames = prev.perfectGames + 1;
       break;
     }
+    case 'practiceCombination':
+      xpGained = XP.combination;
+      next.combinations = prev.combinations + 1;
+      break;
   }
 
   next.xp = prev.xp + xpGained;
@@ -139,17 +155,24 @@ export function applyEvent(
   return { state: next, xpGained, newBadges, levelUp: after > before ? after : null };
 }
 
-/** Accepts unknown stored data and returns a valid state. */
+/** Accepts unknown stored data (any past version) and returns a valid state. */
 export function migrate(raw: unknown): ProgressState {
   if (!raw || typeof raw !== 'object') return initialProgress;
-  const r = raw as Partial<ProgressState>;
-  if (r.version !== 1) return initialProgress;
+  const r = raw as Record<string, unknown>;
+  if (r.version !== 1 && r.version !== 2) return initialProgress;
+  const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+  // v1 stored major arcana as numbers 0–21.
+  const cardsViewed = arr(r.cardsViewed).map((c) => (typeof c === 'number' ? `m${String(c).padStart(2, '0')}` : String(c)));
+  const streak = r.streak as ProgressState['streak'] | undefined;
   return {
-    ...initialProgress,
-    ...r,
-    cardsViewed: Array.isArray(r.cardsViewed) ? r.cardsViewed : [],
-    lessonsDone: Array.isArray(r.lessonsDone) ? r.lessonsDone : [],
-    badges: Array.isArray(r.badges) ? r.badges : [],
-    streak: r.streak ?? initialProgress.streak,
+    version: 2,
+    xp: typeof r.xp === 'number' ? r.xp : 0,
+    cardsViewed,
+    lessonsDone: arr(r.lessonsDone).map(String),
+    gamesPlayed: typeof r.gamesPlayed === 'number' ? r.gamesPlayed : 0,
+    perfectGames: typeof r.perfectGames === 'number' ? r.perfectGames : 0,
+    combinations: typeof r.combinations === 'number' ? r.combinations : 0,
+    badges: arr(r.badges).map(String),
+    streak: streak && typeof streak.count === 'number' ? streak : initialProgress.streak,
   };
 }

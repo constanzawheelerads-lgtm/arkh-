@@ -56,6 +56,30 @@ export const TRUE_FALSE: TrueFalseItem[] = [
     explain: { es: 'Es su novedad más visible frente a la mayoría de los mazos anteriores.', en: 'It is its most visible novelty compared with most earlier decks.' },
   },
   {
+    id: 'marseille-coins',
+    statement: { es: 'En el Tarot de Marsella, los Oros se representan como monedas.', en: 'In the Tarot de Marseille, the Pentacles suit is shown as coins.' },
+    answer: true,
+    explain: { es: 'Son deniers (monedas). Waite los rebautizó Pentacles.', en: 'They are deniers (coins). Waite renamed them Pentacles.' },
+  },
+  {
+    id: 'ten-swords',
+    statement: { es: 'Según Waite, el Diez de Espadas es sobre todo una carta de muerte violenta.', en: 'According to Waite, the Ten of Swords is above all a card of violent death.' },
+    answer: false,
+    explain: { es: 'Waite aclara que no es especialmente una carta de muerte violenta: habla de dolor, aflicción y desolación.', en: 'Waite notes it is not especially a card of violent death: he speaks of pain, affliction and desolation.' },
+  },
+  {
+    id: 'two-wands-decan',
+    statement: { es: 'Para la Golden Dawn, el Dos de Bastos corresponde a Marte en Aries.', en: 'For the Golden Dawn, the Two of Wands corresponds to Mars in Aries.' },
+    answer: true,
+    explain: { es: 'Su título es “Señor del Dominio”. Es una atribución de esa escuela.', en: 'Its title is “Lord of Dominion”. It is an attribution of that school.' },
+  },
+  {
+    id: 'suits-europe',
+    statement: { es: 'Los palos del tarot (copas, espadas, bastos y oros) son los mismos de la baraja española.', en: 'The tarot suits (cups, swords, wands and coins) are the same as in Spanish playing cards.' },
+    answer: true,
+    explain: { es: 'Ambos usan los palos latinos de los naipes que llegaron a Europa a fines del s. XIV.', en: 'Both use the Latin suits of the playing cards that reached Europe in the late fourteenth century.' },
+  },
+  {
     id: 'star-points',
     statement: { es: 'En La Estrella del RWS, la estrella principal tiene ocho puntas.', en: 'In the RWS Star, the main star has eight points.' },
     answer: true,

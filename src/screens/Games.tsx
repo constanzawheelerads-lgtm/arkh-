@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
-import { cardImage, MAJORS } from '../content/majors';
+import { CARDS, cardImage } from '../content/cards';
+import { cardLinks } from '../content/links';
+import { SUITS } from '../content/minors';
 import { TRUE_FALSE } from '../content/trueFalse';
-import type { MajorArcanum } from '../content/types';
+import type { Card, L10n } from '../content/types';
 import { WORLDS } from '../content/worlds';
-import { IconBack, IconEye, IconGrid, IconQuestion } from '../components/Icons';
+import { IconBack, IconEye, IconGrid, IconQuestion, IconLearn } from '../components/Icons';
 import { useI18n } from '../i18n/I18n';
 import { sample, shuffle } from '../lib/random';
 import { XP } from '../progress/model';
@@ -16,6 +18,7 @@ export function GamesHub() {
     { id: 'guess', icon: <IconEye />, title: t('games.guess'), desc: t('games.guessDesc') },
     { id: 'truefalse', icon: <IconQuestion />, title: t('games.truefalse'), desc: t('games.truefalseDesc') },
     { id: 'memory', icon: <IconGrid />, title: t('games.memory'), desc: t('games.memoryDesc') },
+    { id: 'combination', icon: <IconLearn />, title: t('games.combination'), desc: t('games.combinationDesc') },
   ];
   return (
     <>
@@ -67,12 +70,12 @@ function Result({ correct, total, gained, onAgain }: { correct: number; total: n
 
 const ROUNDS = 6;
 
-interface GuessRound { answer: MajorArcanum; options: MajorArcanum[] }
+interface GuessRound { answer: Card; options: Card[] }
 
 function makeGuessRounds(): GuessRound[] {
-  return sample(MAJORS, ROUNDS).map((answer) => ({
+  return sample(CARDS, ROUNDS).map((answer) => ({
     answer,
-    options: shuffle([answer, ...sample(MAJORS.filter((m) => m.n !== answer.n), 3)]),
+    options: shuffle([answer, ...sample(CARDS.filter((c) => c.id !== answer.id), 3)]),
   }));
 }
 
@@ -80,9 +83,10 @@ export function GuessGame() {
   const { t, l } = useI18n();
   const { record } = useProgress();
   const [seed, setSeed] = useState(0);
+   
   const rounds = useMemo(makeGuessRounds, [seed]);
   const [i, setI] = useState(0);
-  const [picked, setPicked] = useState<number | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [gained, setGained] = useState<number | null>(null);
 
@@ -106,26 +110,26 @@ export function GuessGame() {
       </section>
       <div className="grid2" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8 }}>
         {r.options.map((o) => {
-          const right = answered && o.n === r.answer.n;
-          const wrong = answered && o.n === picked && !right;
+          const right = answered && o.id === r.answer.id;
+          const wrong = answered && o.id === picked && !right;
           return (
             <button
-              key={o.n}
+              key={o.id}
               type="button"
               disabled={answered}
-              onClick={() => { setPicked(o.n); if (o.n === r.answer.n) setScore((s) => s + 1); }}
+              onClick={() => { setPicked(o.id); if (o.id === r.answer.id) setScore((s) => s + 1); }}
               aria-label={l(o.name)}
               style={{ padding: 3, borderRadius: 8, border: `2px solid ${right ? 'var(--teal)' : wrong ? 'var(--rose)' : 'transparent'}`, background: 'transparent' }}
             >
-              <img className="tarot" src={cardImage(o.n)} alt="" />
+              <img className="tarot" src={cardImage(o.id)} alt="" />
             </button>
           );
         })}
       </div>
       {answered && (
         <div className="stack fade">
-          <p role="status" className={`feedback ${picked === r.answer.n ? '' : 'bad'}`}>
-            <strong>{picked === r.answer.n ? t('common.correct') : t('common.incorrect')}</strong> {r.answer.roman} · {l(r.answer.name)}
+          <p role="status" className={`feedback ${picked === r.answer.id ? '' : 'bad'}`}>
+            <strong>{picked === r.answer.id ? t('common.correct') : t('common.incorrect')}</strong> {l(r.answer.name)}
           </p>
           <button type="button" className="btn" onClick={next}>{i + 1 < ROUNDS ? t('common.next') : t('common.finish')}</button>
         </div>
@@ -138,6 +142,7 @@ export function TrueFalseGame() {
   const { t, l } = useI18n();
   const { record } = useProgress();
   const [seed, setSeed] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items = useMemo(() => sample(TRUE_FALSE, ROUNDS), [seed]);
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<boolean | null>(null);
@@ -178,7 +183,7 @@ export function TrueFalseGame() {
   );
 }
 
-interface Tile { key: string; card: number; kind: 'image' | 'name' }
+interface Tile { key: string; card: Card; kind: 'image' | 'name' }
 const PAIRS = 6;
 
 export function MemoryGame() {
@@ -186,29 +191,30 @@ export function MemoryGame() {
   const { record } = useProgress();
   const [seed, setSeed] = useState(0);
   const tiles = useMemo<Tile[]>(() => {
-    const cards = sample(MAJORS, PAIRS);
+    const cards = sample(CARDS, PAIRS);
     return shuffle(cards.flatMap((c) => [
-      { key: `${c.n}-i`, card: c.n, kind: 'image' as const },
-      { key: `${c.n}-n`, card: c.n, kind: 'name' as const },
+      { key: `${c.id}-i`, card: c, kind: 'image' as const },
+      { key: `${c.id}-n`, card: c, kind: 'name' as const },
     ]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed]);
   const [open, setOpen] = useState<string[]>([]);
-  const [matched, setMatched] = useState<number[]>([]);
+  const [matched, setMatched] = useState<string[]>([]);
   const [moves, setMoves] = useState(0);
   const [gained, setGained] = useState<number | null>(null);
 
   const restart = () => { setSeed((s) => s + 1); setOpen([]); setMatched([]); setMoves(0); setGained(null); };
 
   const flip = (tile: Tile) => {
-    if (open.length === 2 || open.includes(tile.key) || matched.includes(tile.card)) return;
+    if (open.length === 2 || open.includes(tile.key) || matched.includes(tile.card.id)) return;
     const nowOpen = [...open, tile.key];
     setOpen(nowOpen);
     if (nowOpen.length === 2) {
       const [a, b] = nowOpen.map((k) => tiles.find((x) => x.key === k)!);
       const m = moves + 1;
       setMoves(m);
-      if (a.card === b.card) {
-        const nm = [...matched, a.card];
+      if (a.card.id === b.card.id) {
+        const nm = [...matched, a.card.id];
         setMatched(nm);
         setOpen([]);
         if (nm.length === PAIRS) {
@@ -233,28 +239,124 @@ export function MemoryGame() {
       )}
       <div className="memory">
         {tiles.map((tile) => {
-          const isMatched = matched.includes(tile.card);
+          const isMatched = matched.includes(tile.card.id);
           const isOpen = isMatched || open.includes(tile.key);
-          const card = MAJORS[tile.card];
           return (
             <button
               key={tile.key}
               type="button"
               className={isMatched ? 'matched' : isOpen ? 'open' : ''}
               onClick={() => flip(tile)}
-              aria-label={isOpen ? (tile.kind === 'name' ? l(card.name) : `${l(card.name)} (img)`) : t('games.memoryCardBack')}
+              aria-label={isOpen ? l(tile.card.name) : t('games.memoryCardBack')}
             >
               {!isOpen ? (
                 <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.5L21 9.3l-5 4.4 1.5 6.8L12 17l-5.5 3.5L8 13.7 3 9.3l6.4-.8z" fill="none" stroke="#d4af6a" strokeWidth="1" /></svg>
               ) : tile.kind === 'image' ? (
-                <img src={cardImage(tile.card)} alt="" />
+                <img src={cardImage(tile.card.id)} alt="" />
               ) : (
-                <span>{l(card.name)}</span>
+                <span style={{ fontSize: 15 }}>{l(tile.card.name)}</span>
               )}
             </button>
           );
         })}
       </div>
+    </>
+  );
+}
+
+const PRACTICE_QUESTIONS: L10n[] = [
+  { es: '¿Qué conviene tener en cuenta al empezar un trabajo nuevo?', en: 'What should I keep in mind when starting a new job?' },
+  { es: '¿Cómo puedo mejorar la comunicación con una amiga?', en: 'How can I improve communication with a friend?' },
+  { es: '¿Qué actitud me conviene ante una mudanza?', en: 'What attitude would help me through a move?' },
+  { es: '¿Cómo encarar un examen importante?', en: 'How should I approach an important exam?' },
+  { es: '¿Qué necesito para retomar un proyecto abandonado?', en: 'What do I need to pick up an abandoned project?' },
+];
+
+export function CombinationGame() {
+  const { t, l } = useI18n();
+  const { record } = useProgress();
+  const [seed, setSeed] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const pair = useMemo(() => sample(CARDS, 2), [seed]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const question = useMemo(() => sample(PRACTICE_QUESTIONS, 1)[0], [seed]);
+  const [text, setText] = useState('');
+  const [checks, setChecks] = useState([false, false, false, false]);
+  const [gained, setGained] = useState<number | null>(null);
+
+  const suitName = (id: string) => l(SUITS.find((s) => s.id === id)!.name);
+  const suitElement = (id: string) => l(SUITS.find((s) => s.id === id)!.element);
+  const links = cardLinks(pair[0], pair[1]).map((x) => {
+    if (x.key === 'combo.sameSuit') return t(x.key, { suit: suitName(x.vars!.suit) });
+    if (x.key === 'combo.elements') return t(x.key, { a: suitElement(x.vars!.a), b: suitElement(x.vars!.b) });
+    return t(x.key);
+  });
+  const ready = text.trim().length >= 40 && checks.every(Boolean);
+  const reset = () => { setSeed((s) => s + 1); setText(''); setChecks([false, false, false, false]); setGained(null); };
+  const items: ('combo.c1' | 'combo.c2' | 'combo.c3' | 'combo.c4')[] = ['combo.c1', 'combo.c2', 'combo.c3', 'combo.c4'];
+
+  return (
+    <>
+      <GameHeader title={t('games.combination')} />
+      <section className="card gold">
+        <span className="eyebrow">{t('combo.question')}</span>
+        <p className="display h3" style={{ fontSize: 21 }}>{l(question)}</p>
+      </section>
+      <div className="grid2">
+        {pair.map((c) => (
+          <a key={c.id} href={href.card(c.id)} className="link-card stack" style={{ gap: 6, alignItems: 'center' }}>
+            <img className="tarot" src={cardImage(c.id)} alt={l(c.name)} style={{ maxWidth: 150 }} />
+            <span className="small" style={{ fontWeight: 700, textAlign: 'center' }}>{l(c.name)}</span>
+          </a>
+        ))}
+      </div>
+      <section className="card">
+        <span className="eyebrow" style={{ color: 'var(--teal)' }}>{t('combo.links')}</span>
+        <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--text-2)' }}>
+          {links.map((x) => <li key={x}>{x}</li>)}
+          <li>{t('combo.lookFor')}</li>
+        </ul>
+      </section>
+      <label className="stack" style={{ gap: 8 }} htmlFor="combo-text">
+        <span className="display h3">{t('combo.yourReading')}</span>
+        <textarea
+          id="combo-text"
+          rows={5}
+          value={text}
+          disabled={gained !== null}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={t('combo.placeholder')}
+          style={{ borderRadius: 14, border: '1px solid var(--line-strong)', background: 'var(--surface)', padding: '12px 14px', lineHeight: 1.5, resize: 'vertical' }}
+        />
+      </label>
+      <fieldset className="card" style={{ margin: 0 }}>
+        <legend className="eyebrow" style={{ padding: '0 6px' }}>{t('combo.checklist')}</legend>
+        {items.map((k, i) => (
+          <label key={k} className="row" style={{ gap: 10, minHeight: 36 }}>
+            <input
+              id={`combo-check-${i}`}
+              type="checkbox"
+              checked={checks[i]}
+              disabled={gained !== null}
+              onChange={() => setChecks((c) => c.map((v, j) => (j === i ? !v : v)))}
+              style={{ width: 20, height: 20, accentColor: 'var(--gold)' }}
+            />
+            <span className="p" style={{ fontSize: 14 }}>{t(k)}</span>
+          </label>
+        ))}
+      </fieldset>
+      {gained === null ? (
+        <button type="button" className="btn" disabled={!ready} onClick={() => setGained(record({ type: 'practiceCombination' }))}>
+          {t('combo.done')} · +{XP.combination} XP
+        </button>
+      ) : (
+        <section className="card gold fade" role="status" style={{ alignItems: 'center', textAlign: 'center' }}>
+          <span className="display h2">{t('combo.saved')}</span>
+          <span className="display h2" style={{ color: 'var(--gold)' }}>+{gained} XP</span>
+          <button type="button" className="btn" onClick={reset}>{t('combo.newPair')}</button>
+        </section>
+      )}
+      <p className="small muted" style={{ margin: 0 }}>{t('combo.note')}</p>
     </>
   );
 }

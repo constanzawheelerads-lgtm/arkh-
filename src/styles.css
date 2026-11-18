@@ -63,6 +63,8 @@ img { max-width: 100%; }
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
+/* Scrolling column: children keep their natural height instead of shrinking. */
+.main > * { flex-shrink: 0; }
 
 /* Bottom navigation */
 .nav {
