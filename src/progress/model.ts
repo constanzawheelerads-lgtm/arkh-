@@ -69,7 +69,7 @@ export function levelFromXp(xp: number): number {
 }
 
 export const LEVEL_TITLES: L10n[] = [
-  { es: 'Novicio', en: 'Novice' },
+  { es: 'Principiante', en: 'Beginner' },
   { es: 'Aprendiz', en: 'Apprentice' },
   { es: 'Iniciado', en: 'Initiate' },
   { es: 'Adepto', en: 'Adept' },
