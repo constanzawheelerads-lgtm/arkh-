@@ -81,7 +81,7 @@ export function LessonView({ id }: { id: string }) {
   return (
     <>
       <header className="row">
-        <a href={href.learn()} className="icon-btn" aria-label={t('common.back')}><IconBack /></a>
+        <a href={href.world(lesson.world)} className="icon-btn" aria-label={t('common.back')}><IconBack /></a>
         <div className="stack" style={{ gap: 0, flex: 1 }}>
           <span className="eyebrow">{l(WORLDS[lesson.world])}</span>
           <h1 className="display h2">{l(lesson.title)}</h1>
@@ -97,7 +97,7 @@ export function LessonView({ id }: { id: string }) {
           <span className="eyebrow">{t('learn.completed')}</span>
           <span className="display h1">{gained > 0 ? t('learn.reward', { n: gained }) : '✓'}</span>
           {gained === 0 && <p className="p muted">{t('learn.alreadyDone')}</p>}
-          <a href={href.learn()} className="btn">{t('common.continue')}</a>
+          <a href={href.world(lesson.world)} className="btn">{t('common.continue')}</a>
         </section>
       ) : onQuiz ? (
         <section className="card fade" key="quiz">

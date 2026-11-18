@@ -23,3 +23,4 @@ export const IconEye = (p: P) => <svg {...base} {...p}><path d="M2 12s4-7 10-7 1
 export const IconScale = IconGames;
 export const IconGrid = (p: P) => <svg {...base} {...p}><rect x="3" y="3" width="8" height="8" rx="1" /><rect x="13" y="3" width="8" height="8" rx="1" /><rect x="3" y="13" width="8" height="8" rx="1" /><rect x="13" y="13" width="8" height="8" rx="1" /></svg>;
 export const IconQuestion = (p: P) => <svg {...base} {...p}><rect x="6" y="3" width="12" height="18" rx="1.5" /><path d="M10 9.5a2 2 0 1 1 2.5 1.9c-.4.2-.5.5-.5.9V13M12 16h.01" /></svg>;
+export const IconWorlds = (p: P) => <svg {...base} {...p}><circle cx="12" cy="12" r="9" /><path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18M3 12h18" /></svg>;

@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CARDS, cardImage } from '../content/cards';
 import { cardLinks } from '../content/links';
 import { SUITS } from '../content/minors';
 import { TRUE_FALSE } from '../content/trueFalse';
 import type { Card, L10n } from '../content/types';
 import { WORLDS } from '../content/worlds';
-import { IconBack, IconEye, IconGrid, IconQuestion, IconLearn } from '../components/Icons';
+import { IconBack, IconEye, IconGrid, IconQuestion, IconLearn, IconStar } from '../components/Icons';
 import { useI18n } from '../i18n/I18n';
 import { sample, shuffle } from '../lib/random';
 import { XP } from '../progress/model';
@@ -19,6 +19,7 @@ export function GamesHub() {
     { id: 'truefalse', icon: <IconQuestion />, title: t('games.truefalse'), desc: t('games.truefalseDesc') },
     { id: 'memory', icon: <IconGrid />, title: t('games.memory'), desc: t('games.memoryDesc') },
     { id: 'combination', icon: <IconLearn />, title: t('games.combination'), desc: t('games.combinationDesc') },
+    { id: 'timed', icon: <IconStar />, title: t('games.timed'), desc: t('games.timedDesc') },
   ];
   return (
     <>
@@ -98,7 +99,7 @@ export function GuessGame() {
   const answered = picked !== null;
   const next = () => {
     if (i + 1 < ROUNDS) { setI(i + 1); setPicked(null); }
-    else setGained(record({ type: 'finishGame', correct: score, total: ROUNDS }));
+    else setGained(record({ type: 'finishGame', game: 'guess', correct: score, total: ROUNDS }));
   };
 
   return (
@@ -159,7 +160,7 @@ export function TrueFalseGame() {
   const choose = (v: boolean) => { setPicked(v); if (v === item.answer) setScore((s) => s + 1); };
   const next = () => {
     if (i + 1 < ROUNDS) { setI(i + 1); setPicked(null); }
-    else setGained(record({ type: 'finishGame', correct: score, total: ROUNDS }));
+    else setGained(record({ type: 'finishGame', game: 'truefalse', correct: score, total: ROUNDS }));
   };
   const cls = (v: boolean) => (answered && v === item.answer ? 'right' : answered && v === picked ? 'wrong' : '');
 
@@ -219,7 +220,7 @@ export function MemoryGame() {
         setOpen([]);
         if (nm.length === PAIRS) {
           const perfect = m <= PAIRS + 2;
-          setGained(record({ type: 'finishGame', correct: PAIRS, total: PAIRS, bonusXp: XP.memoryComplete, perfect }));
+          setGained(record({ type: 'finishGame', game: 'memory', correct: PAIRS, total: PAIRS, bonusXp: XP.memoryComplete, perfect }));
         }
       } else {
         window.setTimeout(() => setOpen([]), 900);
@@ -357,6 +358,87 @@ export function CombinationGame() {
         </section>
       )}
       <p className="small muted" style={{ margin: 0 }}>{t('combo.note')}</p>
+    </>
+  );
+}
+
+const TIME_LIMIT = 60;
+
+function timedRound(): { answer: Card; options: Card[] } {
+  const answer = sample(CARDS, 1)[0];
+  return { answer, options: shuffle([answer, ...sample(CARDS.filter((c) => c.id !== answer.id), 3)]) };
+}
+
+export function TimedGame() {
+  const { t, l } = useI18n();
+  const { progress, record } = useProgress();
+  const [phase, setPhase] = useState<'ready' | 'playing' | 'done'>('ready');
+  const [left, setLeft] = useState(TIME_LIMIT);
+  const [round, setRound] = useState(timedRound);
+  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [flash, setFlash] = useState<'right' | 'wrong' | null>(null);
+  const [gained, setGained] = useState(0);
+
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    if (left <= 0) {
+      setPhase('done');
+      setGained(record({ type: 'finishGame', game: 'timed', correct: score.correct, total: Math.max(score.total, 1), perfect: false }));
+      return;
+    }
+    const id = window.setTimeout(() => setLeft((s) => s - 1), 1000);
+    return () => window.clearTimeout(id);
+  }, [phase, left, record, score]);
+
+  const start = () => { setScore({ correct: 0, total: 0 }); setLeft(TIME_LIMIT); setRound(timedRound()); setPhase('playing'); };
+  const pick = (c: Card) => {
+    const ok = c.id === round.answer.id;
+    setScore((s) => ({ correct: s.correct + (ok ? 1 : 0), total: s.total + 1 }));
+    setFlash(ok ? 'right' : 'wrong');
+    window.setTimeout(() => setFlash(null), 250);
+    setRound(timedRound());
+  };
+
+  return (
+    <>
+      <GameHeader title={t('games.timed')} sub={t('timed.best', { n: progress.bestTimed })} />
+      {phase === 'ready' && (
+        <section className="card gold" style={{ alignItems: 'flex-start' }}>
+          <p className="p">{t('games.timedDesc')}</p>
+          <button type="button" className="btn" onClick={start}>{t('timed.start')}</button>
+        </section>
+      )}
+      {phase === 'playing' && (
+        <>
+          <div className="row between" aria-live="off">
+            <span className="display h2" style={{ color: left <= 10 ? 'var(--rose)' : 'var(--gold)', fontVariantNumeric: 'tabular-nums' }}>{t('timed.left', { s: left })}</span>
+            <span className="display h3" style={{ fontVariantNumeric: 'tabular-nums' }}>{t('timed.score', { n: score.correct })}</span>
+          </div>
+          <div className="bar"><span style={{ width: `${(left / TIME_LIMIT) * 100}%` }} /></div>
+          <img
+            className="tarot"
+            src={cardImage(round.answer.id)}
+            alt={t('games.whichCard')}
+            style={{ width: 150, alignSelf: 'center', outline: flash ? `3px solid ${flash === 'right' ? 'var(--teal)' : 'var(--rose)'}` : 'none', outlineOffset: 4 }}
+          />
+          <div className="grid2" style={{ gap: 8 }}>
+            {round.options.map((o) => (
+              <button key={o.id} type="button" className="option" style={{ textAlign: 'center', fontSize: 14 }} onClick={() => pick(o)}>{l(o.name)}</button>
+            ))}
+          </div>
+        </>
+      )}
+      {phase === 'done' && (
+        <section className="card gold fade" role="status" style={{ alignItems: 'center', textAlign: 'center', padding: 28 }}>
+          <span className="eyebrow">{t('timed.done')}</span>
+          <span className="display h1">{t('timed.score', { n: score.correct })}</span>
+          <span className="display h2" style={{ color: 'var(--gold)' }}>+{gained} XP</span>
+          <div className="row">
+            <button type="button" className="btn" onClick={start}>{t('common.playAgain')}</button>
+            <a href={href.games()} className="btn ghost">{t('common.back')}</a>
+          </div>
+        </section>
+      )}
     </>
   );
 }

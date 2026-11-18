@@ -3,7 +3,7 @@ import { LESSONS } from '../content/lessons';
 import { useI18n } from '../i18n/I18n';
 import { dayKey } from '../lib/random';
 import { readJSON, removeKey, writeJSON } from '../lib/storage';
-import { applyEvent, BADGES, initialProgress, migrate, type ProgressEvent, type ProgressState } from './model';
+import { applyEvent, BADGES, COLLECTIBLES, initialProgress, migrate, type ProgressEvent, type ProgressState } from './model';
 
 const KEY = 'arkhe.progress';
 
@@ -38,7 +38,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const res = applyEvent(ref.current, e, dayKey(), LESSONS.length);
       ref.current = res.state;
       setProgress(res.state);
-      if (res.newBadges.length) {
+      if (res.newCollectibles.length) {
+        const c = COLLECTIBLES.find((x) => x.id === res.newCollectibles[0]);
+        if (c) setToast(t('toast.collectible', { name: l(c.name) }));
+      } else if (res.dailyCompleted) {
+        setToast(t('toast.daily'));
+      } else if (res.newBadges.length) {
         const badge = BADGES.find((b) => b.id === res.newBadges[0]);
         if (badge) setToast(t('toast.badge', { name: l(badge.name) }));
       } else if (res.levelUp) {

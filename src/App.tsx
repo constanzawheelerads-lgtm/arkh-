@@ -1,8 +1,10 @@
-import { IconGames, IconHome, IconLearn, IconLibrary, IconProfile } from './components/Icons';
+import { IconGames, IconHome, IconLibrary, IconProfile, IconWorlds } from './components/Icons';
 import { I18nProvider, useI18n } from './i18n/I18n';
 import { ProgressProvider, useProgress } from './progress/Progress';
 import { href, useRoute, type Route } from './router';
-import { CombinationGame, GamesHub, GuessGame, MemoryGame, TrueFalseGame } from './screens/Games';
+import { CombinationGame, GamesHub, GuessGame, MemoryGame, TimedGame, TrueFalseGame } from './screens/Games';
+import { CaseView, Lab } from './screens/Lab';
+import { ExamView, WorldView, WorldsMap } from './screens/Worlds';
 import { Home } from './screens/Home';
 import { LessonList, LessonView } from './screens/Learn';
 import { CardDetail, Library } from './screens/Library';
@@ -21,15 +23,21 @@ function Screen({ route }: { route: Route }) {
       if (route.id === 'guess') return <GuessGame />;
       if (route.id === 'truefalse') return <TrueFalseGame />;
       if (route.id === 'combination') return <CombinationGame />;
+      if (route.id === 'timed') return <TimedGame />;
       return <MemoryGame />;
     case 'profile': return <Profile />;
     case 'sources': return <Sources />;
+    case 'worlds': return <WorldsMap />;
+    case 'world': return <WorldView n={route.n} />;
+    case 'exam': return <ExamView id={route.id} />;
+    case 'lab': return <Lab />;
+    case 'case': return <CaseView id={route.id} />;
   }
 }
 
 function section(route: Route): string {
   switch (route.name) {
-    case 'learn': case 'lesson': case 'sources': return 'learn';
+    case 'learn': case 'lesson': case 'sources': case 'worlds': case 'world': case 'exam': case 'lab': case 'case': return 'worlds';
     case 'library': case 'card': return 'library';
     case 'games': case 'game': return 'games';
     case 'profile': return 'profile';
@@ -44,7 +52,7 @@ function Shell() {
   const current = section(route);
   const items = [
     { id: 'home', href: href.home(), label: t('nav.home'), icon: <IconHome /> },
-    { id: 'learn', href: href.learn(), label: t('nav.learn'), icon: <IconLearn /> },
+    { id: 'worlds', href: href.worlds(), label: t('nav.worlds'), icon: <IconWorlds /> },
     { id: 'library', href: href.library(), label: t('nav.library'), icon: <IconLibrary /> },
     { id: 'games', href: href.games(), label: t('nav.games'), icon: <IconGames /> },
     { id: 'profile', href: href.profile(), label: t('nav.profile'), icon: <IconProfile /> },
