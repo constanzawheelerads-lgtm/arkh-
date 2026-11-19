@@ -55,6 +55,11 @@ export function Home() {
 
       <MysteriumSays>{t('home.cardOfDayMsg', { card: l(daily.name) })}</MysteriumSays>
 
+      <a href={href.tutor()} className="card link-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: '12px 14px' }}>
+        <span className="display h3" style={{ flex: 1, fontSize: 19 }}>{t('tutor.ask')}</span>
+        <IconNext style={{ color: 'var(--gold)' }} />
+      </a>
+
       <a href={href.card(daily.id)} className="card gold link-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <img src={cardImage(daily.id)} alt={l(daily.name)} style={{ width: 62, borderRadius: 4, flexShrink: 0 }} />
         <div className="stack" style={{ gap: 4, flex: 1 }}>

@@ -10,6 +10,7 @@ import { LessonList, LessonView } from './screens/Learn';
 import { CardDetail, Library } from './screens/Library';
 import { Profile } from './screens/Profile';
 import { Sources } from './screens/Sources';
+import { Tutor } from './screens/Tutor';
 
 function Screen({ route }: { route: Route }) {
   switch (route.name) {
@@ -32,6 +33,7 @@ function Screen({ route }: { route: Route }) {
     case 'exam': return <ExamView id={route.id} />;
     case 'lab': return <Lab />;
     case 'case': return <CaseView id={route.id} />;
+    case 'tutor': return <Tutor cardId={route.cardId} />;
   }
 }
 

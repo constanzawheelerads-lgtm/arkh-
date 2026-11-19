@@ -1,6 +1,6 @@
 # Arkhé — The study of tarot
 
-Fases 2, 3 y 4 del documento maestro: app web mobile-first en React + TypeScript, lista para empaquetar luego con Capacitor (Android/iOS).
+Fases 2 a 5 del documento maestro: app web mobile-first en React + TypeScript, lista para empaquetar luego con Capacitor (Android/iOS).
 
 ## Qué incluye
 
@@ -15,7 +15,8 @@ Fases 2, 3 y 4 del documento maestro: app web mobile-first en React + TypeScript
 - **Progresión RPG**: desafío diario, misiones semanales, 9 coleccionables (uno por mundo) y avatar personalizable (mantos por nivel, accesorios por coleccionables).
 - **Progreso** local sin cuenta: XP, niveles, racha diaria y sellos; migración automática desde versiones anteriores.
 - **Español e inglés** desde el inicio: todo el contenido es `{ es, en }` y los textos de interfaz están tipados para que falte una traducción sea un error de compilación.
-- Mysterium (profesor) como emblema provisional.
+- **Mysterium, tutor con IA** en tres modos (Lección con Claude Haiku 5.5; Socrático y Consultante con Claude Sonnet 5.5) y devolución de lecturas abiertas con criterios explícitos. Responde solo con las fuentes de Arkhé y las cita; 15 mensajes gratis por día. Configuración: [docs/CONFIGURAR-MYSTERIUM.md](docs/CONFIGURAR-MYSTERIUM.md).
+- Mysterium se muestra con un emblema provisional hasta tener su ilustración definitiva.
 
 ## Comandos
 
@@ -24,6 +25,7 @@ npm install
 npm run dev       # desarrollo
 npm test          # pruebas (progreso, contenido bilingüe, rutas)
 npm run build     # compila en dist/
+npm run build:corpus   # regenera las fuentes de Mysterium tras editar contenido
 ```
 
 ## Estructura
@@ -35,11 +37,16 @@ src/
   progress/  modelo puro de progreso (XP, niveles, racha, sellos) + persistencia local
   screens/   pantallas
   components/
+  lib/mysterium.ts  cliente del tutor (sesión anónima de Supabase + función)
+supabase/
+  functions/mysterium/  función que guarda la clave de la IA (tutor.ts = lógica probada)
+  migrations/           contador diario de mensajes
+evals/       30 preguntas de prueba para Mysterium
+scripts/     build-corpus.ts (fuentes del tutor) y run-eval.ts
 public/cards/  imágenes de las 78 cartas (300 px y 600 px): m00–m21, w/c/s/p01–14
 ```
 
 ## Pendiente para próximas fases
 
-- Tutor IA Mysterium con fuentes verificadas (Fase 5).
 - Cuentas y sincronización (Supabase), contenido sin conexión, Capacitor (Fase 6).
 - Revisión legal de las imágenes y textos antes de publicar en tiendas (Fase 7).

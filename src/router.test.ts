@@ -20,6 +20,9 @@ describe('router', () => {
     expect(parseHash(href.lab())).toEqual({ name: 'lab' });
     expect(parseHash(href.caseStudy('marina'))).toEqual({ name: 'case', id: 'marina' });
     expect(parseHash(href.game('timed'))).toEqual({ name: 'game', id: 'timed' });
+    expect(parseHash(href.tutor())).toEqual({ name: 'tutor' });
+    expect(parseHash(href.tutor('m09'))).toEqual({ name: 'tutor', cardId: 'm09' });
+    expect(parseHash('#tutor-zz')).toEqual({ name: 'home' });
   });
 
   it('falls back safely on bad input', () => {

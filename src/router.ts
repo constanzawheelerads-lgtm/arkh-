@@ -20,7 +20,8 @@ export type Route =
   | { name: 'world'; n: number }
   | { name: 'exam'; id: string }
   | { name: 'lab' }
-  | { name: 'case'; id: string };
+  | { name: 'case'; id: string }
+  | { name: 'tutor'; cardId?: string };
 
 const GAMES: GameId[] = ['guess', 'truefalse', 'memory', 'combination', 'timed'];
 const WORLD_NUMBERS = [0, 1, 2, 3, 6, 9, 10, 11, 17];
@@ -50,6 +51,8 @@ export function parseHash(hash: string): Route {
   }
   if (h.startsWith('exam-') && SLUG.test(h.slice(5))) return { name: 'exam', id: h.slice(5) };
   if (h === 'lab') return { name: 'lab' };
+  if (h === 'tutor') return { name: 'tutor' };
+  if (h.startsWith('tutor-') && CARD_ID.test(h.slice(6))) return { name: 'tutor', cardId: h.slice(6) };
   if (h.startsWith('case-') && SLUG.test(h.slice(5))) return { name: 'case', id: h.slice(5) };
   return { name: 'home' };
 }
@@ -69,6 +72,7 @@ export const href = {
   exam: (id: string) => `#exam-${id}`,
   lab: () => '#lab',
   caseStudy: (id: string) => `#case-${id}`,
+  tutor: (cardId?: string) => (cardId ? `#tutor-${cardId}` : '#tutor'),
 };
 
 export function useRoute(): Route {

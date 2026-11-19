@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CARDS, cardImage } from '../content/cards';
 import { cardLinks } from '../content/links';
+import { AskForFeedback } from '../components/Evaluation';
 import { SUITS } from '../content/minors';
 import { TRUE_FALSE } from '../content/trueFalse';
 import type { Card, L10n } from '../content/types';
@@ -357,7 +358,10 @@ export function CombinationGame() {
           <button type="button" className="btn" onClick={reset}>{t('combo.newPair')}</button>
         </section>
       )}
-      <p className="small muted" style={{ margin: 0 }}>{t('combo.note')}</p>
+      <AskForFeedback
+        disabled={text.trim().length < 40}
+        payload={() => ({ context: { cardIds: pair.map((c) => c.id) }, reading: { kind: 'combination', text, question: l(question) } })}
+      />
     </>
   );
 }

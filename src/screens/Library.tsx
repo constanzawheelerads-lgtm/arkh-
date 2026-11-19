@@ -112,7 +112,9 @@ export function CardDetail({ id }: { id: string }) {
         <span className="eyebrow" style={{ color: 'var(--muted)' }}>
           {card.arcana === 'major' ? `${t('card.arcanaMajor')} · ${card.label}` : t('card.arcanaMinor')}
         </span>
-        <span style={{ width: 44 }} />
+        <a href={href.tutor(card.id)} className="icon-btn" aria-label={t('tutor.askAboutCard')} style={{ background: 'var(--gold)', borderColor: 'var(--gold)', color: 'var(--on-gold)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>
+        </a>
       </header>
 
       <div className="card" style={{ position: 'relative', alignItems: zoom ? 'stretch' : 'center', padding: 18, overflow: 'hidden' }}>

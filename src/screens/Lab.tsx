@@ -4,6 +4,7 @@ import { CASES, getCase, type ConsultationCase } from '../content/cases';
 import type { Card, L10n } from '../content/types';
 import { WORLDS } from '../content/worlds';
 import { IconBack, IconCheck } from '../components/Icons';
+import { AskForFeedback } from '../components/Evaluation';
 import { useI18n } from '../i18n/I18n';
 import type { UiKey } from '../i18n/ui';
 import { readJSON, writeJSON } from '../lib/storage';
@@ -213,7 +214,8 @@ export function CaseView({ id }: { id: string }) {
           <a href={href.lab()} className="btn">{t('common.continue')}</a>
         </section>
       )}
-      <p className="small muted" style={{ margin: 0 }}>{t('combo.note')}</p>
+      <AskForFeedback disabled={text.trim().length < 60} payload={() => ({ context: { caseId: c.id }, reading: { kind: 'case', text } })} />
+      <a href={href.tutor()} className="small">{t('tutor.ask')}</a>
     </>
   );
 }
