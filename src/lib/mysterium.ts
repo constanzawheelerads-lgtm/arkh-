@@ -1,7 +1,7 @@
 // Client for the Mysterium Edge Function. The app never sees the Anthropic key:
 // it signs in anonymously to Supabase and calls the function with that session.
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabase, isBackendConfigured, MYSTERIUM_ENABLED, SUPABASE_KEY, SUPABASE_URL } from './supabase';
 import type { Lang } from '../content/types';
 
 export type TutorMode = 'teacher' | 'socratic' | 'client' | 'evaluate';
@@ -27,27 +27,14 @@ export interface TutorPayload {
   reading?: { kind: 'combination' | 'case'; text: string; question?: string };
 }
 
-const URL_ = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-
-/** Builds for the sandboxed web preview cannot reach outside servers. */
-export const IS_PREVIEW_BUILD = import.meta.env.VITE_PREVIEW === '1';
+export { IS_PREVIEW_BUILD } from './supabase';
 
 export function isMysteriumConfigured(): boolean {
-  return Boolean(URL_ && ANON);
-}
-
-let clientPromise: Promise<SupabaseClient> | null = null;
-
-async function getClient(): Promise<SupabaseClient> {
-  if (!clientPromise) {
-    clientPromise = import('@supabase/supabase-js').then(({ createClient }) => createClient(URL_!, ANON!));
-  }
-  return clientPromise;
+  return MYSTERIUM_ENABLED && isBackendConfigured();
 }
 
 async function accessToken(): Promise<string | null> {
-  const supabase = await getClient();
+  const supabase = await getSupabase();
   const { data } = await supabase.auth.getSession();
   if (data.session) return data.session.access_token;
   const { data: signed, error } = await supabase.auth.signInAnonymously();
@@ -60,9 +47,9 @@ export async function askMysterium(payload: TutorPayload): Promise<TutorResult> 
   try {
     const token = await accessToken();
     if (!token) return { ok: false, reason: 'network' };
-    const res = await fetch(`${URL_}/functions/v1/mysterium`, {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/mysterium`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: ANON! },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: SUPABASE_KEY },
       body: JSON.stringify(payload),
     });
     const body = await res.json().catch(() => ({}));

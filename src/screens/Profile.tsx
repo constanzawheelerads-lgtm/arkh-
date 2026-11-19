@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { cardImage, majorId } from '../content/cards';
 import { EXAMS } from '../content/exams';
 import { LANGS } from '../content/types';
+import { AccountPanel } from '../components/AccountPanel';
+import { OfflinePanel } from '../components/OfflinePanel';
 import { Avatar } from '../components/Avatar';
 import { IconStar } from '../components/Icons';
 import { useI18n } from '../i18n/I18n';
 import { ACCESSORIES, BADGES, COLLECTIBLES, examPassed, levelFromXp, levelTitle, ROBES, xpForLevel } from '../progress/model';
+import { useAccount } from '../progress/Account';
 import { useProgress } from '../progress/Progress';
 import { href } from '../router';
 
@@ -15,6 +18,7 @@ export function Profile() {
   const { t, l, lang, setLang } = useI18n();
   const { progress, reset, record } = useProgress();
   const [confirming, setConfirming] = useState(false);
+  const { account } = useAccount();
   const level = levelFromXp(progress.xp);
   const to = xpForLevel(level + 1);
   const from = xpForLevel(level);
@@ -24,7 +28,7 @@ export function Profile() {
     <>
       <header className="stack" style={{ gap: 4 }}>
         <h1 className="display h1">{t('profile.title')}</h1>
-        <span className="small muted">{t('profile.local')}</span>
+        <span className="small muted">{account ? account.email : t('profile.local')}</span>
       </header>
 
       <section className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
@@ -163,10 +167,11 @@ export function Profile() {
         </div>
       </section>
 
-      <p className="small muted" style={{ margin: 0 }}>{t('profile.accountSoon')}</p>
+      <AccountPanel />
+      <OfflinePanel />
       {confirming ? (
         <div className="card" role="alertdialog" aria-label={t('profile.reset')} style={{ borderColor: 'var(--rose)' }}>
-          <p className="p">{t('profile.resetConfirm')}</p>
+          <p className="p">{t(account ? 'profile.resetConfirmSynced' : 'profile.resetConfirm')}</p>
           <div className="row">
             <button type="button" className="btn" style={{ background: 'var(--rose)', borderColor: 'var(--rose)' }} onClick={() => { reset(); setConfirming(false); }}>
               {t('profile.reset')}

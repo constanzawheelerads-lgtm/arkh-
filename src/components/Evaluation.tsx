@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Lang } from '../content/types';
 import { useI18n } from '../i18n/I18n';
 import type { UiKey } from '../i18n/ui';
+import { MYSTERIUM_ENABLED } from '../lib/supabase';
 import { askMysterium, IS_PREVIEW_BUILD, isMysteriumConfigured, type TutorEvaluation, type TutorPayload, type TutorResult } from '../lib/mysterium';
 
 const SCORE_KEY: Record<0 | 1 | 2, UiKey> = { 0: 'eval.score0', 1: 'eval.score1', 2: 'eval.score2' };
@@ -54,6 +55,7 @@ export function AskForFeedback({ payload, disabled }: { payload: () => Omit<Tuto
     setState({ status: 'done', result });
   };
 
+  if (!MYSTERIUM_ENABLED) return null;
   return (
     <div className="stack">
       <button type="button" className="btn ghost" disabled={disabled || state.status === 'loading' || !isMysteriumConfigured()} onClick={run}>

@@ -11,6 +11,8 @@ interface ProgressValue {
   progress: ProgressState;
   record: (e: ProgressEvent) => number;
   reset: () => void;
+  /** Replaces the whole state (used after merging with the cloud copy). */
+  replace: (next: ProgressState) => void;
   toast: string | null;
 }
 
@@ -60,7 +62,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setProgress(initialProgress);
   }, []);
 
-  return <ProgressContext.Provider value={{ progress, record, reset, toast }}>{children}</ProgressContext.Provider>;
+  const replace = useCallback((next: ProgressState) => {
+    ref.current = next;
+    setProgress(next);
+  }, []);
+
+  return <ProgressContext.Provider value={{ progress, record, reset, replace, toast }}>{children}</ProgressContext.Provider>;
 }
 
 export function useProgress(): ProgressValue {

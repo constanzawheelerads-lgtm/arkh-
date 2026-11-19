@@ -8,6 +8,7 @@ import { dayKey } from '../lib/random';
 import { levelFromXp, levelTitle, MISSIONS, missionStatus, xpForLevel } from '../progress/model';
 import { useProgress } from '../progress/Progress';
 import { href } from '../router';
+import { MYSTERIUM_ENABLED } from '../lib/supabase';
 
 function cardOfTheDay(): number {
   const key = dayKey();
@@ -56,7 +57,7 @@ export function Home() {
       <MysteriumSays>{t('home.cardOfDayMsg', { card: l(daily.name) })}</MysteriumSays>
 
       <a href={href.tutor()} className="card link-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: '12px 14px' }}>
-        <span className="display h3" style={{ flex: 1, fontSize: 19 }}>{t('tutor.ask')}</span>
+        <span className="display h3" style={{ flex: 1, fontSize: 19 }}>{MYSTERIUM_ENABLED ? t('tutor.ask') : t('tutor.askSoon')}</span>
         <IconNext style={{ color: 'var(--gold)' }} />
       </a>
 

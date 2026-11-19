@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Arkhé</string>
+    <string name="title_activity_main">Arkhé</string>
+    <string name="package_name">com.arkhestudy.tarot</string>
+    <string name="custom_url_scheme">com.arkhestudy.tarot</string>
+</resources>

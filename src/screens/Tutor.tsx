@@ -9,6 +9,7 @@ import { useI18n } from '../i18n/I18n';
 import type { UiKey } from '../i18n/ui';
 import { askMysterium, IS_PREVIEW_BUILD, isMysteriumConfigured, type TutorCitation, type TutorMode } from '../lib/mysterium';
 import { readJSON, writeJSON } from '../lib/storage';
+import { MYSTERIUM_ENABLED } from '../lib/supabase';
 import { href } from '../router';
 
 type ChatMode = Exclude<TutorMode, 'evaluate'>;
@@ -30,7 +31,7 @@ function citationHref(docId: string): string {
   return href.sources();
 }
 
-export function Tutor({ cardId }: { cardId?: string }) {
+function TutorChat({ cardId }: { cardId?: string }) {
   const { t, l, lang } = useI18n();
   const [consent, setConsent] = useState<boolean>(() => readJSON(CONSENT_KEY, false));
   const [mode, setMode] = useState<ChatMode>('teacher');
@@ -192,4 +193,48 @@ export function Tutor({ cardId }: { cardId?: string }) {
       )}
     </>
   );
+}
+
+/** Shown while Mysterium is switched off (no AI budget yet). */
+function MysteriumSoon({ cardId }: { cardId?: string }) {
+  const { t } = useI18n();
+  const modes: { title: UiKey; text: UiKey }[] = [
+    { title: 'tutor.modeTeacher', text: 'soon.teacher' },
+    { title: 'tutor.modeSocratic', text: 'soon.socratic' },
+    { title: 'tutor.modeClient', text: 'soon.client' },
+  ];
+  return (
+    <>
+      <header className="row">
+        <a href={cardId ? href.card(cardId) : href.home()} className="icon-btn" aria-label={t('common.back')}><IconBack /></a>
+        <MysteriumEmblem size={48} />
+        <div className="stack" style={{ gap: 0 }}>
+          <span className="eyebrow">{t('soon.badge')}</span>
+          <h1 className="display h2">{t('tutor.title')}</h1>
+        </div>
+      </header>
+      <section className="card gold">
+        <p className="display h3" style={{ fontSize: 21 }}>{t('soon.title')}</p>
+        <p className="p">{t('soon.text')}</p>
+      </section>
+      <section className="stack">
+        {modes.map((m) => (
+          <div key={m.title} className="card">
+            <strong className="display h3">{t(m.title)}</strong>
+            <p className="p" style={{ fontSize: 14 }}>{t(m.text)}</p>
+          </div>
+        ))}
+      </section>
+      <section className="stack">
+        <span className="eyebrow" style={{ color: 'var(--teal)' }}>{t('soon.meanwhile')}</span>
+        <a href={href.learn()} className="btn ghost">{t('learn.title')}</a>
+        <a href={href.game('combination')} className="btn ghost">{t('games.combination')}</a>
+        <a href={href.lab()} className="btn ghost">{t('lab.cases')}</a>
+      </section>
+    </>
+  );
+}
+
+export function Tutor({ cardId }: { cardId?: string }) {
+  return MYSTERIUM_ENABLED ? <TutorChat cardId={cardId} /> : <MysteriumSoon cardId={cardId} />;
 }

@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { IconGames, IconHome, IconLibrary, IconProfile, IconWorlds } from './components/Icons';
 import { I18nProvider, useI18n } from './i18n/I18n';
+import { AccountProvider } from './progress/Account';
 import { ProgressProvider, useProgress } from './progress/Progress';
 import { href, useRoute, type Route } from './router';
 import { CombinationGame, GamesHub, GuessGame, MemoryGame, TimedGame, TrueFalseGame } from './screens/Games';
@@ -47,8 +49,24 @@ function section(route: Route): string {
   }
 }
 
+function useOnline(): boolean {
+  const [online, setOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const up = () => setOnline(true);
+    const down = () => setOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => {
+      window.removeEventListener('online', up);
+      window.removeEventListener('offline', down);
+    };
+  }, []);
+  return online;
+}
+
 function Shell() {
   const route = useRoute();
+  const online = useOnline();
   const { t } = useI18n();
   const { toast } = useProgress();
   const current = section(route);
@@ -62,6 +80,7 @@ function Shell() {
 
   return (
     <div className="app">
+      {!online && <div role="status" className="small" style={{ background: 'var(--surface-2)', color: 'var(--text)', padding: '8px 16px', textAlign: 'center', fontWeight: 700 }}>{t('offline.banner')}</div>}
       <main id="main" className="main">
         <Screen route={route} />
       </main>
@@ -82,7 +101,9 @@ export default function App() {
   return (
     <I18nProvider>
       <ProgressProvider>
-        <Shell />
+        <AccountProvider>
+          <Shell />
+        </AccountProvider>
       </ProgressProvider>
     </I18nProvider>
   );
