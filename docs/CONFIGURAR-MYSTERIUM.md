@@ -1,5 +1,9 @@
 # Conectar a Mysterium (Fase 5)
 
+> **Estado (19/11/2026):** proyecto Supabase `arkhe` (`lkgkjjpudabqwezokrxe`, región São Paulo) creado; contador de mensajes instalado (solo modificable por la función); función `mysterium` desplegada; la app de producción ya apunta al proyecto (`.env.production`). **Faltan dos pasos manuales en el panel:** activar *Anonymous sign-ins* y cargar el secreto `ANTHROPIC_API_KEY`.
+>
+> La función lee las fuentes (`corpus.json`) desde GitHub, fijadas a un commit. Si editas el contenido: `npm run build:corpus`, sube el cambio y actualiza `CORPUS_URL` en `index.ts` (o el secreto `CORPUS_URL`) con el nuevo commit antes de volver a desplegar.
+
 Mysterium responde a través de un servidor intermedio en **Supabase**, que guarda la clave de la IA y controla el límite de **15 mensajes por día y por persona**. La app nunca ve la clave.
 
 | Modo | Modelo | Por qué |

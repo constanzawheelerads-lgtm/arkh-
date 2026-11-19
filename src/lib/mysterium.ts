@@ -30,6 +30,9 @@ export interface TutorPayload {
 const URL_ = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
+/** Builds for the sandboxed web preview cannot reach outside servers. */
+export const IS_PREVIEW_BUILD = import.meta.env.VITE_PREVIEW === '1';
+
 export function isMysteriumConfigured(): boolean {
   return Boolean(URL_ && ANON);
 }

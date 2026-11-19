@@ -78,5 +78,7 @@ for (const c of CASES) {
   });
 }
 
-writeFileSync(new URL('../supabase/functions/mysterium/corpus.json', import.meta.url), JSON.stringify({ version: 1, docs }, null, 0));
+// One document per line: compact, but easy to review in diffs.
+const body = `{"version":1,"docs":[\n${docs.map((d) => JSON.stringify(d)).join(',\n')}\n]}\n`;
+writeFileSync(new URL('../supabase/functions/mysterium/corpus.json', import.meta.url), body);
 console.log(`corpus: ${docs.length} documents`);

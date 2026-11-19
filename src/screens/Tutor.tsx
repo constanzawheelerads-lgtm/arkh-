@@ -7,7 +7,7 @@ import { MysteriumEmblem } from '../components/Mysterium';
 import { errorKey } from '../components/Evaluation';
 import { useI18n } from '../i18n/I18n';
 import type { UiKey } from '../i18n/ui';
-import { askMysterium, isMysteriumConfigured, type TutorCitation, type TutorMode } from '../lib/mysterium';
+import { askMysterium, IS_PREVIEW_BUILD, isMysteriumConfigured, type TutorCitation, type TutorMode } from '../lib/mysterium';
 import { readJSON, writeJSON } from '../lib/storage';
 import { href } from '../router';
 
@@ -96,7 +96,7 @@ export function Tutor({ cardId }: { cardId?: string }) {
         </div>
       </header>
 
-      {!configured && <div className="card" role="status" style={{ borderColor: 'var(--rose)' }}><p className="p">{t('tutor.notConfigured')}</p></div>}
+      {!configured && <div className="card" role="status" style={{ borderColor: 'var(--rose)' }}><p className="p">{t(IS_PREVIEW_BUILD ? 'tutor.previewOnly' : 'tutor.notConfigured')}</p></div>}
 
       {!consent ? (
         <section className="card gold">

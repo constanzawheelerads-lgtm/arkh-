@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Lang } from '../content/types';
 import { useI18n } from '../i18n/I18n';
 import type { UiKey } from '../i18n/ui';
-import { askMysterium, isMysteriumConfigured, type TutorEvaluation, type TutorPayload, type TutorResult } from '../lib/mysterium';
+import { askMysterium, IS_PREVIEW_BUILD, isMysteriumConfigured, type TutorEvaluation, type TutorPayload, type TutorResult } from '../lib/mysterium';
 
 const SCORE_KEY: Record<0 | 1 | 2, UiKey> = { 0: 'eval.score0', 1: 'eval.score1', 2: 'eval.score2' };
 const SCORE_CLASS: Record<0 | 1 | 2, string> = { 0: 'history', 1: 'waite', 2: 'school' };
@@ -59,7 +59,7 @@ export function AskForFeedback({ payload, disabled }: { payload: () => Omit<Tuto
       <button type="button" className="btn ghost" disabled={disabled || state.status === 'loading' || !isMysteriumConfigured()} onClick={run}>
         {state.status === 'loading' ? t('eval.loading') : t('eval.request')}
       </button>
-      {!isMysteriumConfigured() && <p className="small muted" style={{ margin: 0 }}>{t('tutor.notConfigured')}</p>}
+      {!isMysteriumConfigured() && <p className="small muted" style={{ margin: 0 }}>{t(IS_PREVIEW_BUILD ? 'tutor.previewOnly' : 'tutor.notConfigured')}</p>}
       {state.status === 'done' && state.result.ok && state.result.kind === 'evaluation' && <EvaluationView evaluation={state.result.evaluation} />}
       {state.status === 'done' && !state.result.ok && <p role="alert" className="feedback bad">{t(errorKey(state.result))}</p>}
     </div>
